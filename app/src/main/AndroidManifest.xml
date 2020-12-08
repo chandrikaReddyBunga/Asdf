@@ -56,7 +56,7 @@
         <activity android:name=".testModule.SelectTestStripActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"></activity>
         <activity android:name=".testModule.PairDeviceViewController"
-           ></activity>
+            ></activity>
         <activity android:name=".testModule.ResultPageViewController"
             ></activity>
         <activity android:name=".testModule.SampleReadyActivity"
@@ -70,7 +70,7 @@
             ></activity>
 
 
-<activity android:name=".testModule.HtmltoPdfConversionActivity"></activity>
+        <activity android:name=".testModule.HtmltoPdfConversionActivity"></activity>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

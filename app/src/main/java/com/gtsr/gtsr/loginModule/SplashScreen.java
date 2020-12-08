@@ -41,7 +41,6 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_scree);
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
-            Log.e("moves", "Build.VERSION.SDK_INT >= Build.VERSION_CODES.M");
             String[] PERMISSIONS = {
                    // Manifest.permission.READ_PHONE_STATE,
                   //  Manifest.permission.ACCESS_NETWORK_STATE,
@@ -53,14 +52,12 @@ public class SplashScreen extends AppCompatActivity {
                     Manifest.permission.CAMERA,
             };
             if (!hasPermissions(mContext, PERMISSIONS)) {
-                Log.e("ccada", "cc");
                 //enableLoc();
                 ActivityCompat.requestPermissions((Activity) mContext, PERMISSIONS, REQUEST);
             } else {
                 checker();
             }
         } else {
-            Log.e("ccada", "ccc");
             // startActivity(new Intent(getApplicationContext(), LoginViewController.class));
             checker();
 
@@ -77,7 +74,6 @@ public class SplashScreen extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.e("starting", "startLogin1");
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
             }
@@ -121,86 +117,20 @@ public class SplashScreen extends AppCompatActivity {
     public void checker() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.e("ddfsd", "da");
             //  StartAnimations();
             checkAppFlow();
         } else {
-            Log.e("ddfsd", "da1");
           //  enableLoc();
             handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e("allenable", "startLogin1");
                     startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
                 }
             }, 1000);
         }
     }
-
-  /*  //// Below 6.0.1 Laction can be on /////
-    private void enableLoc() {
-        if (googleApiClient == null) {
-            Log.e("flow", "flow :");
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                        @Override
-                        public void onConnected(Bundle bundle) {
-                            Log.e("checkk", "flow1");
-                            // StartAnimations();
-                        }
-
-                        @Override
-                        public void onConnectionSuspended(int i) {
-                            Log.e("checkk", "flow2");
-                            googleApiClient.connect();
-                        }
-                    })
-                    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                        @Override
-                        public void onConnectionFailed(ConnectionResult connectionResult) {
-                            Log.e("Location error", "Location error " + connectionResult.getErrorCode());
-
-                            Log.e("Location error", "Location error " + connectionResult.getErrorCode());
-                        }
-                    }).build();
-            googleApiClient.connect();
-
-            LocationRequest locationRequest = LocationRequest.create();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(30 * 1000);
-            locationRequest.setFastestInterval(5 * 1000);
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                    .addLocationRequest(locationRequest);
-            builder.setAlwaysShow(true); //this is the key ingredient
-            PendingResult<LocationSettingsResult> result =
-                    LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
-            result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-                @Override
-                public void onResult(LocationSettingsResult result) {
-                    final Status status = result.getStatus();
-                    switch (status.getStatusCode()) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                Log.e("eee", "status");
-
-                                // Show the dialog by calling startResolutionForResult(),
-                                // and check the result in onActivityResult().
-                                status.startResolutionForResult(SplashScreen.this, REQUEST_LOCATION);
-                            } catch (IntentSender.SendIntentException e) {
-                                Log.e("eee", "aa" + e.getMessage());
-                                // Ignore the error.
-                            }
-                            break;
-                    }
-                }
-            });
-        }
-
-    }
-*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -231,10 +161,10 @@ public class SplashScreen extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {    //when click on phone backbutton
-        Intent intent = new Intent(Intent.ACTION_MAIN);
+       /* Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
 }

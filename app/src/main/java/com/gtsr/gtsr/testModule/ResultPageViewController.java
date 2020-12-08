@@ -97,7 +97,7 @@ public class ResultPageViewController extends AppCompatActivity {
         simpleDateFormat = new SimpleDateFormat("EEEE,dd", Locale.ENGLISH); //for get Monday ,sunday and dd for date
         simpleMonthFormat = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);//for get,month year
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-       // currentdateFormat = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH);
+        // currentdateFormat = new SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.ENGLISH);
         alertDilogue = new RefreshShowingDialog(ResultPageViewController.this);
         //set current member testNameArray and reelation to textviws
         deleteButton = (ImageView) findViewById(R.id.btn_delete);
@@ -122,7 +122,7 @@ public class ResultPageViewController extends AppCompatActivity {
     }
 
     private void loadCurrentDate() {
-       // Calendar calobj = Calendar.getInstance();
+        // Calendar calobj = Calendar.getInstance();
         if (UrineResultsDataController.getInstance().currenturineresultsModel != null) {
             try {
                 txt_currenrDate.setText(UrineResultsDataController.getInstance().convertTestTimeTodate(UrineResultsDataController.getInstance().currenturineresultsModel.getTestedTime()));
@@ -162,8 +162,14 @@ public class ResultPageViewController extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SCConnectionHelper.getInstance().disconnectWithPeripheral();
-                startActivity(new Intent(getApplicationContext(), HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                // SCConnectionHelper.getInstance().disconnectWithPeripheral();
+                if (HomeActivity.isFromHome) {
+                    HomeActivity.isFromHome=false;
+                    finish();
+                } else {
+                    finish();
+                    // startActivity(new Intent(getApplicationContext(), DownloadStripViewController.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                }
             }
         });
         rl_home = (RelativeLayout) findViewById(R.id.rootView);
@@ -188,28 +194,6 @@ public class ResultPageViewController extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             startActivity(new Intent(getApplicationContext(),HtmltoPdfConversionActivity.class));
-          /*  img_share.setVisibility(View.GONE);
-            back.setVisibility(View.GONE);
-            View viewScreen = img_share.getRootView();
-            viewScreen.buildDrawingCache();
-            viewScreen.setDrawingCacheEnabled(true);
-            viewScreen.destroyDrawingCache();
-            Bitmap screenshot1 = Bitmap.createBitmap(viewScreen.getWidth(), viewScreen.getHeight(), Bitmap.Config.RGB_565);
-            viewScreen.draw(new Canvas(screenshot1));
-            File mfile2 = savebitmap2(screenshot1);
-            final Uri screenshotUri = Uri.fromFile(mfile2);
-
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "GTSR");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "" + "GTSr Results");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
-            shareIntent.setType("image/*");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, "Sharing Status.."));
-
-            img_share.setVisibility(View.VISIBLE);
-            back.setVisibility(View.VISIBLE);*/
         }
     };
 
@@ -422,9 +406,13 @@ public class ResultPageViewController extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
-      //  SCConnectionHelper.getInstance().disconnectWithPeripheral();
-        startActivity(new Intent(getApplicationContext(), HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        if (HomeActivity.isFromHome) {
+            HomeActivity.isFromHome=false;
+            finish();
+        } else {
+            finish();
+            //  startActivity(new Intent(getApplicationContext(), DownloadStripViewController.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
     }
 
 

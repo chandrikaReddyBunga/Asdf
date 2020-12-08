@@ -59,7 +59,9 @@ import com.spectrochips.spectrumsdk.FRAMEWORK.SCFile;
 import com.spectrochips.spectrumsdk.FRAMEWORK.SCTestAnalysis;
 
 import com.spectrochips.spectrumsdk.FRAMEWORK.SCFileHelper;
+import com.spectrochips.spectrumsdk.FRAMEWORK.TestFactors;
 import com.spectrochips.spectrumsdk.FRAMEWORK.UartService;
+import com.spectrochips.spectrumsdk.MODELS.IntensityChart;
 import com.spectrochips.spectrumsdk.MODELS.SpectroDeviceDataController;
 
 import org.json.JSONException;
@@ -88,7 +90,7 @@ public class DownloadStripViewController extends AppCompatActivity {
     RecyclerView recyclerView;
     EditText searchBox;
     int selectedPosition = -1;
-    RefreshShowingDialog getfilesDialogue, syncingDialog;
+    RefreshShowingDialog getfilesDialogue, syncingDialog,syncingDialog1;
     Button next;
     ArrayList<SCFile> scFilesArray = new ArrayList<>();
     TextView eject_text;
@@ -105,6 +107,8 @@ public class DownloadStripViewController extends AppCompatActivity {
         }
         getfilesDialogue = new RefreshShowingDialog(DownloadStripViewController.this,"Strip Ejecting..");
         syncingDialog = new RefreshShowingDialog(DownloadStripViewController.this, "Configure Settings..");
+        syncingDialog1 = new RefreshShowingDialog(DownloadStripViewController.this, "Syncing..");
+
         loadRecyclerView();
         fetchJsonFiles();
         SpectroDeviceDataController.getInstance().fillContext(getApplicationContext());
@@ -112,6 +116,9 @@ public class DownloadStripViewController extends AppCompatActivity {
         SCTestAnalysis.getInstance().initializeService();
         SCTestAnalysis.getInstance().fillContext(getApplicationContext());
 
+        syncingDialog1.showAlert();
+        SCTestAnalysis.getInstance().isTestingCal=true;
+        fetchJsonFiles();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -119,15 +126,23 @@ public class DownloadStripViewController extends AppCompatActivity {
                     SCTestAnalysis.getInstance().sendString("$SUV0#");
                 }
             }
-        }, 1000 * 1);
-       /* if (SCConnectionHelper.getInstance().isConnected) {
-            SCTestAnalysis.getInstance().sendString("$CAL#");
-        }*/
+        }, 2000 * 1);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (SCConnectionHelper.getInstance().isConnected) {
+                    SCTestAnalysis.getInstance().sendString("$CAL#");
+                }
+            }
+        }, 2000 * 1);
     }
 
     protected void onResume() {
         super.onResume();
-       fetchJsonFiles();
+        selectedPosition=-1;
+        stripAdapter.notifyDataSetChanged();
+        fetchJsonFiles();
     }
 
     private void fetchJsonFiles() {
@@ -155,6 +170,11 @@ public class DownloadStripViewController extends AppCompatActivity {
 
             @Override
             public void uartServiceClose(String error) {
+
+            }
+
+            @Override
+            public void onBLEStatusChange(int state) {
 
             }
         });
@@ -185,26 +205,53 @@ public class DownloadStripViewController extends AppCompatActivity {
                 });
             }
         });
+        SCTestAnalysis.getInstance().startTestAnalysis(new SCTestAnalysis.TeststaResultInterface() {
+            @Override
+            public void onSuccessForTestComplete(ArrayList<TestFactors> results, String msg, ArrayList<IntensityChart> intensityChartsArray) {
+
+            }
+            @Override
+            public void getRequestAndResponse(final String receivedString) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e("ReceivedBytes", "call" + receivedString);
+                        if(SCTestAnalysis.getInstance().isTestingCal) {
+                            if (receivedString.contains("^EOF#")) {
+                                SCTestAnalysis.getInstance().isTestingCal=false;
+                                syncingDialog1.hideRefreshDialog();
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailureForTesting(String error) {
+                Log.e("onFailureForTesting", "call");
+            }
+        });
+
         SCFileHelper.getInstance().getJsonFiles();
     }
 
     @OnClick(R.id.back)
     public void bkAction() {
-        //onBackPressed();
+        SCConnectionHelper.getInstance().scanDeviceInterface = null;
         SCConnectionHelper.getInstance().disconnectWithPeripheral();
-       // SCTestAnalysis.getInstance().removereceiver();
-        SCConnectionHelper.getInstance().scanDeviceInterface=null;
-       // SCTestAnalysis.getInstance().unRegisterReceiver();
         finish();
     }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        SCTestAnalysis.getInstance().removereceiver();
+        SCConnectionHelper.getInstance().scanDeviceInterface = null;
+        SCConnectionHelper.getInstance().disconnectWithPeripheral();
+        finish();
+        /*SCTestAnalysis.getInstance().removereceiver();
         SCTestAnalysis.getInstance().unRegisterReceiver();
         SCConnectionHelper.getInstance().disconnectWithPeripheral();
         SCConnectionHelper.getInstance().mBluetoothAdapter=null;
-        finish();
+        finish();*/
     }
 
     @OnClick(R.id.file)
@@ -741,16 +788,16 @@ public class DownloadStripViewController extends AppCompatActivity {
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
             }*/
-            // Do something with the content in
-            try{
-                final JSONObject jsonObj = new JSONObject(builder.toString());
-                Log.e("dataobject", "call" + jsonObj);
-                Log.e("localfilename", "call" + filename);
-                showFileAlert(jsonObj,filename,"Urine","");
-            }catch (Throwable t) {
-                Log.e("MyApp", "Could not parse malformed JSON");
-                Toast.makeText(getApplicationContext(), "Not a valid file", Toast.LENGTH_LONG).show();
-            }
+        // Do something with the content in
+        try{
+            final JSONObject jsonObj = new JSONObject(builder.toString());
+            Log.e("dataobject", "call" + jsonObj);
+            Log.e("localfilename", "call" + filename);
+            showFileAlert(jsonObj,filename,"Urine","");
+        }catch (Throwable t) {
+            Log.e("MyApp", "Could not parse malformed JSON");
+            Toast.makeText(getApplicationContext(), "Not a valid file", Toast.LENGTH_LONG).show();
+        }
        /* } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
